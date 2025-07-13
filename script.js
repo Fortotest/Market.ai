@@ -1,371 +1,359 @@
-import { marked } from "https://esm.sh/marked@^15.0.8";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasbor Interaktif: Lanskap E-Commerce Indonesia 2025</title>
 
-const API_KEY = "AIzaSyDkAVtL00WxWCslXTONGyjpvLNUgySHg64";
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-function formatRupiah(rupiah_string, withPrefix = true) {
-    let number_string = String(rupiah_string).replace(/[^\d]/g, '');
-    if (number_string === "" || isNaN(parseInt(number_string))) return withPrefix ? "Rp 0" : "0";
-    
-    let sisa = number_string.length % 3;
-    let rupiah = number_string.substr(0, sisa);
-    let ribuan = number_string.substr(sisa).match(/\d{3}/g);
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    if (ribuan) {
-        let separator = sisa ? '.' : '';
-        rupiah += separator + ribuan.join('.');
-    }
-    
-    return (withPrefix ? "Rp " : "") + rupiah;
-}
+<body class="antialiased">
 
-function unformatRupiah(rupiah_string) { 
-    if (!rupiah_string || typeof rupiah_string !== "string") return 0; 
-    return parseFloat(rupiah_string.replace(/\./g, "")); 
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const chartColors = { accent: "#007AFF", accentLight: "rgba(0, 122, 255, 0.2)", text: "#333", grid: "rgba(0, 0, 0, 0.05)", green: "#34C759", orange: "#FF9500", purple: "#AF52DE", gray: "#8E8E93", red: "#FF3B30", yellow: "#FFCC00", tokopediaColor: "#42b549", shopeeColor: "#ee4d2d" };
-    Chart.defaults.font.family = "'Poppins', sans-serif";
-    Chart.defaults.color = chartColors.text;
-
-    const navItems = document.querySelectorAll(".nav-item");
-    const contentSections = document.querySelectorAll(".content-section");
-    const labInputs = document.querySelectorAll('#lab input');
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.id;
-                navItems.forEach(link => {
-                    link.classList.toggle("active", link.getAttribute('href') === `#${id}`);
-                });
-            }
-        });
-    }, { rootMargin: "-50% 0px -50% 0px" });
-
-    contentSections.forEach(section => observer.observe(section));
-    
-    if (document.getElementById("gmvChart")) { new Chart(document.getElementById("gmvChart"), { type: "line", data: { labels: ["Q4 2023", "Q2 2024", "Q4 2024", "Q2 2025 (Est.)"], datasets: [{ label: "GMV (US$ Miliar)", data: [75, 82, 88, 95], borderColor: chartColors.accent, backgroundColor: chartColors.accentLight, fill: true, tension: 0.4 }] }, options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } }, scales: { y: { border: { display: false } }, x: { border: { display: false } } } } }); }
-    if (document.getElementById("marketShareChart")) { new Chart(document.getElementById("marketShareChart"), { type: "doughnut", data: { labels: ["TikTok-Tokopedia", "Shopee", "Lazada", "Blibli", "Lainnya"], datasets: [{ label: "Pangsa Pasar GMV", data: [41, 40, 9, 4, 6], backgroundColor: [chartColors.tokopediaColor, chartColors.shopeeColor, chartColors.orange, chartColors.purple, chartColors.gray], borderColor: "#f8f7f4", borderWidth: 4, hoverOffset: 8 }] }, options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: true, position: "bottom", labels: { padding: 15 } } } } }); }
-    
-    const priceSlider = document.getElementById('price-position');
-    const qualitySlider = document.getElementById('quality-position');
-    const outputContainer = document.getElementById('strategy-output');
-    const titleEl = document.getElementById('positioning-title');
-    const descEl = document.getElementById('positioning-desc');
-    const analysisEl = document.getElementById('positioning-analysis');
-    const platformEl = document.getElementById('positioning-platform');
-
-    const strategies = {
-        volume: { title: "Arena Kecepatan & Harga", desc: "Fokus pada penjualan massal dengan harga kompetitif. Membutuhkan efisiensi operasional dan penguasaan tren cepat.", analysis: ["<b>Kekuatan:</b> Jangkauan pasar luas, potensi penjualan tinggi.", "<b>Kelemahan:</b> Margin tipis, rentan perang harga.", "<b>Fokus AISAS:</b> Attention (lewat promo) & Action (lewat harga murah)."], platform: "TikTok, Shopee, Tokopedia" },
-        value: { title: "Benteng Kualitas & Kepercayaan", desc: "Fokus membangun brand premium dengan kualitas dan layanan superior. Menargetkan pelanggan loyal.", analysis: ["<b>Kekuatan:</b> Margin tebal, loyalitas pelanggan tinggi.", "<b>Kelemahan:</b> Pasar lebih kecil, butuh investasi branding besar.", "<b>Fokus AISAS:</b> Interest (lewat kualitas) & Share (lewat kepuasan)."], platform: "Lazada (LazMall), Blibli, Website Sendiri" },
-        challenger: { title: "Penantang Cerdas", desc: "Menawarkan kualitas premium dengan harga yang lebih terjangkau. 'Affordable luxury'.", analysis: ["<b>Kekuatan:</b> Proposisi nilai sangat kuat.", "<b>Kelemahan:</b> Perlu edukasi pasar, bisa terjepit di tengah.", "<b>Fokus AISAS:</b> Search (perbandingan) & Share (word-of-mouth)."], platform: "Tokopedia, Shopee Mall, TikTok" },
-        trap: { title: "Jebakan Komoditas", desc: "Harga premium namun kualitas dirasa standar. Berisiko tinggi ditinggalkan pelanggan.", analysis: ["<b>Kekuatan:</b> Potensi profit awal jika marketing berhasil.", "<b>Kelemahan:</b> Tidak berkelanjutan, churn rate tinggi.", "<b>Fokus AISAS:</b> Sangat bergantung pada Attention, tapi lemah di Action & Share."], platform: "Semua platform berisiko tinggi" }
-    };
-
-    function updateStrategySimulation() {
-        const price = priceSlider.value;
-        const quality = qualitySlider.value;
-        let strategyKey;
-        if (price < 50 && quality < 50) strategyKey = 'volume';
-        else if (price >= 50 && quality >= 50) strategyKey = 'value';
-        else if (price < 50 && quality >= 50) strategyKey = 'challenger';
-        else strategyKey = 'trap';
-        const selectedStrategy = strategies[strategyKey];
-        titleEl.textContent = selectedStrategy.title;
-        descEl.textContent = selectedStrategy.desc;
-        analysisEl.innerHTML = selectedStrategy.analysis.map(item => `<li>${item}</li>`).join('');
-        platformEl.textContent = selectedStrategy.platform;
-        outputContainer.classList.remove('bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-red-100');
-        if(strategyKey === 'volume') outputContainer.classList.add('bg-blue-100');
-        if(strategyKey === 'value') outputContainer.classList.add('bg-green-100');
-        if(strategyKey === 'challenger') outputContainer.classList.add('bg-purple-100');
-        if(strategyKey === 'trap') outputContainer.classList.add('bg-red-100');
-    }
-
-    priceSlider.addEventListener('input', updateStrategySimulation);
-    qualitySlider.addEventListener('input', updateStrategySimulation);
-    updateStrategySimulation();
-
-    function runFullSimulation() {
-        const hargaJual = unformatRupiah(document.getElementById("hargaJual").value);
-        const hpp = unformatRupiah(document.getElementById("hpp").value);
-        const cac = unformatRupiah(document.getElementById("biayaIklan").value);
-        const biayaLainPersen = parseFloat(document.getElementById("biayaPlatform").value) || 0;
-        const biayaTetap = unformatRupiah(document.getElementById("fixedCosts").value);
-        const penjualanBulan = parseFloat(document.getElementById("avgSales").value) || 0;
-        const avgPurchaseValue = unformatRupiah(document.getElementById("avgPurchaseValue").value) || hargaJual;
-        const purchaseFrequency = parseFloat(document.getElementById("purchaseFrequency").value) || 0;
-        const customerLifespan = parseFloat(document.getElementById("customerLifespan").value) || 0;
-
-        const biayaLainRp = hargaJual * (biayaLainPersen / 100);
-        const profitPerUnit = hargaJual - hpp - cac - biayaLainRp;
-        const netMargin = hargaJual > 0 ? (profitPerUnit / hargaJual) * 100 : 0;
-        const bepUnits = profitPerUnit > 0 ? Math.ceil(biayaTetap / profitPerUnit) : 0;
-        const annualRevenue = (hargaJual * penjualanBulan) * 12;
-        const ltv = avgPurchaseValue * purchaseFrequency * customerLifespan;
-        const monthlyRevenue = hargaJual * penjualanBulan;
-        const monthlyCOGS = hpp * penjualanBulan;
-        const monthlyOpex = (cac * penjualanBulan) + biayaTetap + (monthlyRevenue * (biayaLainPersen / 100));
-        const netProfit = monthlyRevenue - monthlyCOGS - monthlyOpex;
-        const annualProfit = netProfit * 12;
-        const totalAdSpend = cac * penjualanBulan;
-        const roas = totalAdSpend > 0 ? monthlyRevenue / totalAdSpend : 0;
-        const cashIn = monthlyRevenue;
-        const cashOut = monthlyCOGS + monthlyOpex;
-        const netCashFlow = cashIn - cashOut;
-
-        const hasProfitabilityInput = hargaJual > 0 || hpp > 0 || cac > 0;
-        if (hasProfitabilityInput) {
-            document.getElementById("profitPerUnit").textContent = formatRupiah(profitPerUnit);
-            document.getElementById("profitPerUnit").style.color = profitPerUnit >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
-            document.getElementById("netMargin").textContent = `${netMargin.toFixed(1)}%`;
-            document.getElementById("netMargin").style.color = netMargin >= 15 ? 'var(--success-color)' : 'var(--danger-color)';
-        } else {
-            document.getElementById("profitPerUnit").innerHTML = `<span class="text-sm text-gray-400">Isi data untuk melihat profit.</span>`;
-        }
-
-        if (biayaTetap > 0 && profitPerUnit > 0) {
-            document.getElementById("bepResult").innerHTML = `Anda perlu menjual <span class="text-2xl accent-color">${bepUnits.toLocaleString("id-ID")}</span> unit/bulan untuk BEP.`;
-        } else {
-            document.getElementById("bepResult").innerHTML = `<span class="text-sm text-gray-400">Hitung titik impas bisnismu.</span>`;
-        }
-
-        if (penjualanBulan > 0 && hargaJual > 0) {
-            document.getElementById("revenueResult").innerHTML = `Proyeksi Pendapatan Tahunan: <br><span class="text-2xl accent-color">${formatRupiah(annualRevenue)}</span>`;
-        } else {
-            document.getElementById("revenueResult").innerHTML = `<span class="text-sm text-gray-400">Prediksikan potensi omzet tahunan.</span>`;
-        }
-
-        if (avgPurchaseValue > 0 && purchaseFrequency > 0 && customerLifespan > 0) {
-             document.getElementById("ltvResult").innerHTML = `Estimasi LTV per Pelanggan: <br><span class="text-2xl accent-color">${formatRupiah(ltv)}</span>`;
-        } else {
-            document.getElementById("ltvResult").innerHTML = `<span class="text-sm text-gray-400">Ukur nilai jangka panjang pelanggan.</span>`;
-        }
-
-        const hasInput = hargaJual > 0 || penjualanBulan > 0;
-        document.getElementById('projection-output').classList.toggle('hidden', !hasInput);
-        document.getElementById('projection-placeholder').classList.toggle('hidden', hasInput);
-        document.getElementById('action-plan-output').classList.toggle('hidden', !hasInput);
-        document.getElementById('action-plan-placeholder').classList.toggle('hidden', hasInput);
-
-        if (hasInput) {
-            document.getElementById('income-revenue').textContent = formatRupiah(monthlyRevenue);
-            document.getElementById('income-cogs').textContent = `- ${formatRupiah(monthlyCOGS)}`;
-            document.getElementById('income-gross-profit').textContent = formatRupiah(monthlyRevenue - monthlyCOGS);
-            document.getElementById('income-opex').textContent = `- ${formatRupiah(monthlyOpex)}`;
-            document.getElementById('income-net-profit').textContent = formatRupiah(netProfit);
-            document.getElementById('income-net-profit').style.color = netProfit >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
-            document.getElementById('cashflow-in').textContent = `+ ${formatRupiah(cashIn)}`;
-            document.getElementById('cashflow-out').textContent = `- ${formatRupiah(cashOut)}`;
-            document.getElementById('cashflow-net').textContent = formatRupiah(netCashFlow);
-            document.getElementById('cashflow-net').style.color = netCashFlow >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
-            document.getElementById("finalRevenue").textContent = formatRupiah(annualRevenue);
-            document.getElementById("finalProfit").textContent = formatRupiah(annualProfit);
-            document.getElementById("finalProfit").style.color = annualProfit >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
-            document.getElementById("finalROAS").textContent = `${roas.toFixed(2)}x`;
-            const verdictEl = document.getElementById("strategicVerdict");
-            if (netProfit > 0 && netCashFlow > 0) { verdictEl.innerHTML = `<strong class="text-green-600">Strategi Sehat.</strong> Bisnis profitabel dengan arus kas positif. Fokus pada skala dan optimasi.`; } 
-            else if (netProfit > 0 && netCashFlow < 0) { verdictEl.innerHTML = `<strong class="text-yellow-600">Profitabel, Tapi Hati-Hati.</strong> Bisnis mencetak laba, namun arus kas negatif. Perhatikan modal kerja dan siklus pembayaran.`; } 
-            else { verdictEl.innerHTML = `<strong class="text-red-600">Peringatan Kritis.</strong> Arus kas dan profit negatif. Ini adalah resep bakar uang. Bongkar total struktur harga dan biaya Anda.`; }
-        
-            const { platformTitle, platformDesc } = getPlatformRecommendation(netMargin, roas);
-            document.getElementById('action-platform-title').textContent = platformTitle;
-            document.getElementById('action-platform-desc').textContent = platformDesc;
-
-            const { contentTitle, contentDesc } = getContentRecommendation(netMargin, roas);
-            document.getElementById('action-content-title').textContent = contentTitle;
-            document.getElementById('action-content-desc').textContent = contentDesc;
-
-            const { monetizationTitle, monetizationDesc } = getMonetizationRecommendation(netMargin, ltv, cac);
-            document.getElementById('action-monetization-title').textContent = monetizationTitle;
-            document.getElementById('action-monetization-desc').textContent = monetizationDesc;
-        }
-    }
-
-    function getPlatformRecommendation(margin, roas) {
-        if (margin > 25 && roas > 3) {
-            return {
-                platformTitle: "1. Perluas ke Arena Premium",
-                platformDesc: "Margin dan ROAS Anda sehat. Saatnya membangun 'Benteng Kualitas' di platform seperti Lazada (LazMall) atau Blibli untuk menangkap audiens dengan AOV lebih tinggi dan memperkuat brand."
-            };
-        }
-        return {
-            platformTitle: "1. Dominasi Medan Perang Volume",
-            platformDesc: "Fokus utama adalah memaksimalkan jangkauan di 'Arena Kecepatan & Harga'. Kuasai TikTok dan Shopee dengan menjadi yang paling relevan dan responsif terhadap tren."
-        };
-    }
-
-    function getContentRecommendation(margin, roas) {
-        if (margin > 25) {
-            return {
-                contentTitle: "2. Bangun Narasi, Bukan Sekadar Jualan",
-                contentDesc: "Kuasai video commerce dengan konten yang mendalam. Buat video edukatif, tunjukkan proses di balik layar, dan jadikan testimoni pelanggan sebagai pilar utama untuk membangun kepercayaan."
-            };
-        }
-        return {
-            contentTitle: "2. Jadilah Raja Konten Cepat",
-            contentDesc: "Alokasikan sumber daya untuk live streaming harian di jam prime-time (18:00-21:00) dan produksi video pendek yang mengikuti tren secara agresif. Kecepatan adalah kunci konversi."
-        };
-    }
-
-    function getMonetizationRecommendation(margin, ltv, cac) {
-        if (margin < 15) {
-            return {
-                monetizationTitle: "3. Perang Jangka Panjang, Bukan Adu Murah",
-                monetizationDesc: "Margin Anda tipis, hindari perang harga langsung. Fokus pada bundling cerdas untuk menaikkan AOV dan gunakan opsi BNPL untuk meringankan beban pembeli tanpa memotong profit Anda."
-            };
-        }
-        return {
-            monetizationTitle: "3. Justifikasi Harga Premium Anda",
-            monetizationDesc: "Margin sehat adalah aset. Perkuat ini dengan menawarkan garansi kepuasan, layanan purna jual yang superior, dan program loyalitas eksklusif untuk membuat pelanggan merasa harga yang mereka bayar sepadan."
-        };
-    }
-
-    const rupiahInputs = document.querySelectorAll('input[inputmode="numeric"]');
-    rupiahInputs.forEach(input => {
-        input.addEventListener('keyup', function(e) {
-            const value = this.value.replace(/[^\d]/g, '');
-            this.value = formatRupiah(value, false);
-        });
-    });
-
-    labInputs.forEach(input => input.addEventListener('input', runFullSimulation));
-    
-    const businessModelForm = document.getElementById("businessModelForm");
-    if (businessModelForm) {
-        businessModelForm.addEventListener("click", (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                const group = e.target.parentElement.dataset.group;
-                e.target.parentElement.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
-
-                const margin = businessModelForm.querySelector('[data-group="margin"] .active')?.dataset.value;
-                const branding = businessModelForm.querySelector('[data-group="branding"] .active')?.dataset.value;
-                const resultEl = document.getElementById("businessModelResult");
-                
-                if (margin && branding) {
-                    if (margin === "high" && branding === "strong") {
-                        resultEl.innerHTML = `<span class="text-green-600">Rekomendasi: Jalur B (Nilai).</span> Fokus pada Lazada/Blibli.`;
-                    } else if (margin === "low" && branding === "new") {
-                        resultEl.innerHTML = `<span class="accent-color">Rekomendasi: Jalur A (Volume).</span> Fokus pada TikTok-Tokopedia/Shopee.`;
-                    } else {
-                        resultEl.innerHTML = `<span class="text-orange-500">Hybrid.</span> Perlu strategi cerdas di kedua jalur.`;
-                    }
-                }
-            }
-        });
-    }
-
-    const opportunityForm = document.getElementById("opportunityForm");
-    if (opportunityForm) {
-        const brandingScoreEl = document.getElementById("brandingScore");
-        const agilityScoreEl = document.getElementById("agilityScore");
-        const marketingScoreEl = document.getElementById("marketingScore");
-        const opportunityResultEl = document.getElementById("opportunityResult");
-
-        function updateOpportunityScore() {
-            const branding = parseInt(brandingScoreEl.value);
-            const agility = parseInt(agilityScoreEl.value);
-            const marketing = parseInt(marketingScoreEl.value);
-            const score = Math.round(((branding + agility + marketing) / 30) * 100);
-            opportunityResultEl.textContent = `${score}/100`;
-        }
-        opportunityForm.addEventListener("input", updateOpportunityScore);
-        updateOpportunityScore();
-    }
-
-    const analyzeButton = document.getElementById("analyze-button");
-    const outputDiv = document.getElementById("ai-analysis-output");
-    
-    if (analyzeButton) {
-        analyzeButton.addEventListener("click", async () => {
-            if (!API_KEY) {
-                outputDiv.innerHTML = `<p class="text-red-500 font-bold">Error: API_KEY tidak dikonfigurasi.</p>`;
-                return;
-            }
-
-            const labData = {
-                hargaJual: unformatRupiah(document.getElementById("hargaJual").value),
-                hpp: unformatRupiah(document.getElementById("hpp").value),
-                cac: unformatRupiah(document.getElementById("biayaIklan").value),
-                penjualanBulan: parseFloat(document.getElementById("avgSales").value) || 0,
-            };
-
-            const namaProduk = document.getElementById("ai-nama-produk").value;
-            const segmentasi = document.getElementById("ai-segmentasi").value;
-            const modal = unformatRupiah(document.getElementById("ai-modal").value);
-            const strategi = document.getElementById("ai-strategi").value;
+    <main class="container mx-auto p-4 md:p-8 mt-4">
+        <section id="landscape" class="content-section space-y-12">
+            <div class="text-center mb-12">
+                <h2 class="section-title">Peta Perang E-Commerce 2025</h2>
+                <p class="section-subtitle">Bukan sekadar data, ini adalah ruang simulasi tempur Anda. Uji strategi, bongkar kelemahan kompetitor, dan rancang rencana dominasi pasar sebelum Anda bakar uang di medan perang sesungguhnya.</p>
+            </div>
             
-            if (!namaProduk || !strategi || !segmentasi) {
-                outputDiv.innerHTML = `<p class="text-orange-500 font-bold">Harap isi semua input strategis (Nama, Segmentasi, Strategi).</p>`;
-                return;
-            }
-
-            outputDiv.innerHTML = `
-                <div class="space-y-3">
-                    <div class="ai-thinking-step" style="animation-delay: 0s;">✅ Oke, gue terima datanya. Mulai bongkar...</div>
-                    <div class="ai-thinking-step" style="animation-delay: 0.5s;">🧠 Menganalisis profitabilitas & kelayakan modal...</div>
-                    <div class="ai-thinking-step" style="animation-delay: 1.5s;">📊 Mengklasifikasikan strategi marketing lo...</div>
-                    <div class="ai-thinking-step" style="animation-delay: 2.5s;">🎯 Menyusun perintah perang & rekomendasi taktis...</div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 widget">
+                    <h3 class="widget-title">Proyeksi Gross Merchandise Value (GMV) 2025</h3>
+                    <p class="text-sm text-gray-600 mb-6">Pasar e-commerce ritel Indonesia diproyeksikan mencapai <strong class="font-semibold text-gray-800">US$90 - $95 miliar</strong>, menggarisbawahi potensi pasar yang masif.</p>
+                    <div class="chart-container h-64 md:h-80"><canvas id="gmvChart"></canvas></div>
                 </div>
-            `;
+                <div class="widget">
+                    <h3 class="widget-title">Profil Konsumen Digital</h3>
+                    <p class="text-sm text-gray-600 mb-6">Konsumen inti bersifat muda, melek digital, dan mengutamakan perangkat seluler.</p>
+                    <div class="space-y-8">
+                        <div>
+                            <p class="font-semibold text-gray-700">Usia Dominan</p>
+                            <p class="text-3xl font-bold accent-color">26-35 Tahun</p>
+                            <p class="text-xs text-gray-500">Mewakili 46% dari pasar</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Transaksi Seluler</p>
+                            <p class="text-3xl font-bold accent-color">67% Volume</p>
+                            <p class="text-xs text-gray-500">Menegaskan strategi 'mobile-native'</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Pembayaran Utama</p>
+                            <p class="text-3xl font-bold accent-color">Dompet Digital (35%)</p>
+                            <p class="text-xs text-gray-500">Diikuti Transfer Bank (26%)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            analyzeButton.disabled = true;
-            analyzeButton.classList.add("opacity-50", "cursor-not-allowed");
+            <div class="widget">
+                <h3 class="widget-title text-center">Arena Kompetisi & Simulasi Strategi</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-8">
+                        <div class="sub-widget">
+                            <h4 class="text-lg font-semibold text-center mb-4 text-gray-900">Pangsa Pasar GMV (Estimasi 2025)</h4>
+                            <p class="text-sm text-center text-gray-600 mb-4">Pasar terkonsolidasi menjadi duopoli antara <strong class="font-semibold">TikTok-Tokopedia</strong> vs <strong class="font-semibold">Shopee</strong>.</p>
+                            <div class="chart-container h-64"><canvas id="marketShareChart"></canvas></div>
+                        </div>
+                        <div class="sub-widget">
+                             <h4 class="text-lg font-semibold text-center mb-4 text-gray-900">Analisis Medan Perang</h4>
+                             <div class="space-y-4">
+                                <div>
+                                    <h5 class="font-semibold text-gray-800">TikTok & Tokopedia</h5>
+                                    <p class="text-xs text-gray-500 mb-1">Kanal untuk "Shoppertainment" & Pembelian Impulsif</p>
+                                    <p class="text-sm">Kuasai dengan konten video pendek, live streaming, dan tren viral.</p>
+                                </div>
+                                 <div>
+                                    <h5 class="font-semibold text-gray-800">Shopee</h5>
+                                    <p class="text-xs text-gray-500 mb-1">Raksasa Pasar Massal & Promo Agresif</p>
+                                    <p class="text-sm">Menangkan dengan perang harga, voucher, gamifikasi, dan iklan internal yang masif.</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-semibold text-gray-800">Lazada & Blibli</h5>
+                                    <p class="text-xs text-gray-500 mb-1">Benteng untuk Brand & Audiens Berkualitas</p>
+                                    <p class="text-sm">Dominasi dengan branding premium, garansi (LazMall), dan layanan superior.</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-semibold text-gray-800">Social Commerce</h5>
+                                    <p class="text-xs text-gray-500 mb-1">Kanal untuk Targeting Presisi (Meta & Google Ads)</p>
+                                    <p class="text-sm">Jangkau audiens spesifik dengan retargeting dan lead generation.</p>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sub-widget">
+                        <h4 class="text-lg font-semibold mb-4 text-gray-900 text-center">Simulasi Posisi Brand Anda</h4>
+                        <p class="text-sm text-gray-600 mb-6 text-center">Geser slider untuk melihat analisis strategisnya.</p>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="font-semibold text-gray-700 text-sm">Positioning Harga</label>
+                                <input type="range" id="price-position" min="0" max="100" value="50" class="mt-2">
+                                <div class="slider-label"><span>Murah</span><span>Mahal</span></div>
+                            </div>
+                            <div>
+                                <label class="font-semibold text-gray-700 text-sm">Positioning Kualitas/Branding</label>
+                                <input type="range" id="quality-position" min="0" max="100" value="50" class="mt-2">
+                                <div class="slider-label"><span>Massal</span><span>Premium</span></div>
+                            </div>
+                        </div>
 
-            const prompt = `
-                Persona: Kamu adalah AI Business Analyst yang brutal, cerdas, dan to-the-point. Gunakan bahasa "lo-gue" yang tajam. Jangan basa-basi.
+                        <div id="strategy-output" class="mt-8 p-4 rounded-xl bg-gray-200">
+                            <h5 id="positioning-title" class="font-semibold text-lg"></h5>
+                            <p id="positioning-desc" class="text-sm text-gray-700 mt-1"></p>
+                            <div class="mt-4 pt-4 border-t border-gray-300">
+                                <h6 class="font-semibold text-sm mb-2">Analisis Cepat</h6>
+                                <ul id="positioning-analysis" class="list-disc list-inside text-sm space-y-1 text-gray-600"></ul>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-300">
+                                <h6 class="font-semibold text-sm mb-2">Rekomendasi Platform</h6>
+                                <p id="positioning-platform" class="text-sm font-semibold"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                DATA MENTAH:
-                - Nama Produk: "${namaProduk}"
-                - Segmentasi Target: "${segmentasi}"
-                - Modal Marketing: Rp ${formatRupiah(modal, false)}
-                - Harga Jual: Rp ${formatRupiah(labData.hargaJual, false)}
-                - HPP: Rp ${formatRupiah(labData.hpp, false)}
-                - Penjualan/Bulan: ${labData.penjualanBulan} unit
-                - Klaim Strategi Marketing: "${strategi}"
+        <section id="lab" class="content-section space-y-12">
+            <div class="text-center mb-12">
+                <h2 class="section-title">Laboratorium Strategi</h2>
+                <p class="section-subtitle">Uji asumsi bisnismu di sini sebelum bakar uang. Setiap angka akan terintegrasi ke seluruh dasbor secara real-time.</p>
+            </div>
+            
+            <div class="widget">
+                <h3 class="widget-title text-center">Suite Instrumen Analisis</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-8">
+                        <div class="sub-widget">
+                            <h4 class="font-semibold mb-4 text-center">Kalkulator Profitabilitas</h4>
+                            <div><label class="font-medium text-gray-700 text-sm">Harga Jual</label><input type="text" inputmode="numeric" id="hargaJual" class="calculator-input mt-1" placeholder="cth: 150.000"></div>
+                            <div class="mt-4"><label class="font-medium text-gray-700 text-sm">HPP</label><input type="text" inputmode="numeric" id="hpp" class="calculator-input mt-1" placeholder="cth: 60.000"></div>
+                            <div class="mt-4"><label class="font-medium text-gray-700 text-sm">Biaya Iklan (CAC)</label><input type="text" inputmode="numeric" id="biayaIklan" class="calculator-input mt-1" placeholder="cth: 15.000"></div>
+                            <div class="mt-4"><label class="font-medium text-gray-700 text-sm">Biaya Lain (%)</label><input type="number" id="biayaPlatform" class="calculator-input mt-1" placeholder="cth: 5"></div>
+                            <div class="mt-6 border-t pt-4 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold text-gray-600">Profit Bersih / Unit:</span>
+                                    <span id="profitPerUnit" class="font-semibold text-lg text-gray-800"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold text-gray-600">Net Profit Margin:</span>
+                                    <span id="netMargin" class="font-semibold text-lg"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sub-widget">
+                            <h4 class="font-semibold mb-4 text-center">Kalkulator Break-Even Point (BEP)</h4>
+                            <div><label class="font-medium text-gray-700 text-sm">Total Biaya Tetap / Bulan</label><input type="text" inputmode="numeric" id="fixedCosts" class="calculator-input mt-1" placeholder="cth: 5.000.000"></div>
+                            <div id="bepResult" class="mt-6 text-center font-semibold"></div>
+                        </div>
+                        <div class="sub-widget">
+                            <h4 class="font-semibold mb-4 text-center">Kalkulator Proyeksi Pendapatan</h4>
+                            <div><label class="font-medium text-gray-700 text-sm">Rata-rata Penjualan / Bulan (Unit)</label><input type="number" id="avgSales" class="calculator-input mt-1" placeholder="cth: 200"></div>
+                            <div id="revenueResult" class="mt-6 text-center font-semibold"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="sub-widget">
+                            <h4 class="font-semibold mb-4 text-center">Validator Model Bisnis</h4>
+                            <div id="businessModelForm" class="space-y-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 block mb-2">Model Margin</label>
+                                    <div class="segmented-control" data-group="margin">
+                                        <button data-value="low">Margin Tipis</button>
+                                        <button data-value="high">Margin Tebal</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600 block mb-2">Kekuatan Brand</label>
+                                    <div class="segmented-control" data-group="branding">
+                                        <button data-value="new">Brand Baru</button>
+                                        <button data-value="strong">Brand Kuat</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="businessModelResult" class="mt-4 text-center p-3 rounded-lg font-semibold bg-gray-200">Pilih Opsi di Atas</div>
+                        </div>
+                        <div class="sub-widget">
+                            <h4 class="font-semibold mb-4 text-center">Kalkulator Skor Peluang</h4>
+                            <div id="opportunityForm" class="space-y-4">
+                                <div><label class="text-sm font-medium">Kekuatan Branding (0-10)</label><input type="range" id="brandingScore" min="0" max="10" value="0" class="mt-1"></div>
+                                <div><label class="text-sm font-medium">Agilitas Produksi (0-10)</label><input type="range" id="agilityScore" min="0" max="10" value="0" class="mt-1"></div>
+                                <div><label class="text-sm font-medium">Keahlian Pemasaran Digital (0-10)</label><input type="range" id="marketingScore" min="0" max="10" value="0" class="mt-1"></div>
+                            </div>
+                            <div class="mt-6 text-center"><span class="font-semibold">Skor Peluang Anda: </span><span id="opportunityResult" class="font-bold text-3xl accent-color">0/100</span></div>
+                        </div>
+                        <div class="sub-widget">
+                            <h4 class="font-semibold mb-4 text-center">Kalkulator Customer Lifetime Value (LTV)</h4>
+                            <div><label class="font-medium text-gray-700 text-sm">Nilai Pembelian Rata-rata</label><input type="text" inputmode="numeric" id="avgPurchaseValue" class="calculator-input mt-1" placeholder="Otomatis dari Harga Jual"></div>
+                            <div class="mt-4"><label class="font-medium text-gray-700 text-sm">Frekuensi Pembelian / Tahun</label><input type="number" id="purchaseFrequency" class="calculator-input mt-1" placeholder="cth: 4"></div>
+                            <div class="mt-4"><label class="font-medium text-gray-700 text-sm">Masa Hidup Pelanggan (Tahun)</label><input type="number" id="customerLifespan" class="calculator-input mt-1" placeholder="cth: 3"></div>
+                            <div id="ltvResult" class="mt-6 text-center font-semibold"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="ai-analyst" class="content-section space-y-12">
+            <div class="text-center mb-12">
+                <h2 class="section-title">AI Marketplace Analyst</h2>
+                <p class="section-subtitle">Validasi strategimu. Biarkan AI menganalisis data dari Lab Strategi dan memberikan rekomendasi tajam.</p>
+            </div>
+            <div class="widget">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="widget-title">Input Strategis</h3>
+                        <p class="text-sm text-gray-500 -mt-4 mb-4">Data keuangan akan ditarik otomatis dari Lab Strategi. Lengkapi pertanyaan strategis di bawah ini.</p>
+                        
+                        <div><label class="font-medium text-gray-700 text-sm">Nama Produk / Bisnis</label><input type="text" id="ai-nama-produk" class="ai-input mt-1" placeholder="cth: Brand Skincare GlowUp"></div>
+                        
+                        <div><label class="font-medium text-gray-700 text-sm">Segmentasi Target Utama</label><textarea id="ai-segmentasi" class="ai-input mt-1" rows="2" placeholder="cth: Wanita 20-30 thn, urban, peduli bahan alami"></textarea></div>
 
-                TUGAS LO:
-                Bantai data ini. Beri gue analisis tajam dan perintah eksekusi dalam format Markdown.
+                        <div><label class="font-medium text-gray-700 text-sm">Modal Marketing Awal (Rp)</label><input type="text" inputmode="numeric" id="ai-modal" class="ai-input mt-1" placeholder="cth: 20.000.000"></div>
+                        
+                        <div><label class="font-medium text-gray-700 text-sm">Strategi Marketing yang Akan Digunakan</label><textarea id="ai-strategi" class="ai-input mt-1" rows="3" placeholder="cth: Iklan TikTok, endorse beauty vlogger, promo bundling"></textarea></div>
+                        
+                        <button id="analyze-button" class="w-full mt-6 px-6 py-3 text-lg font-bold accent-bg text-white rounded-xl hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            ⚡ Analisis dengan AI
+                        </button>
+                    </div>
+                    <div class="sub-widget">
+                        <h3 class="widget-title">Laporan Analisis AI</h3>
+                        <div id="ai-analysis-output" class="prose">
+                            <p class="text-gray-500">Hasil analisis akan muncul di sini. Lengkapi data di sebelah kiri dan klik tombol analisis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                ### 1. Bongkar Profitabilitas & Kelayakan Modal
-                - Hitung **Margin Kontribusi** per unit.
-                - Analisis: Dengan modal marketing segitu, strategi yang lo sebutin itu masuk akal atau cuma mimpi? Berapa lama modal itu bakal habis kalau CAC (biaya iklan per unit) nya adalah Rp ${formatRupiah(labData.cac, false)}?
+        <section id="projection" class="content-section space-y-12">
+            <div class="text-center mb-12">
+                <h2 class="section-title">Simulasi Dampak Strategis</h2>
+                <p class="section-subtitle">Dashboard keuangan terintegrasi berdasarkan input dari Laboratorium Strategi. Lihat kesehatan bisnismu di sini.</p>
+            </div>
+            
+            <div id="projection-placeholder" class="widget p-8 text-center">
+                <p class="font-semibold text-gray-700">Lengkapi data di 'Laboratorium Strategi' untuk melihat simulasi keuangan.</p>
+            </div>
 
-                ### 2. Kuliti Strategi Marketing & Funnel
-                - Klasifikasikan strategi yang diklaim ke **TOFU, MOFU, BOFU**.
-                - Beri vonis: Funnel-nya seimbang atau pincang? Di mana lubang terbesarnya?
+            <div id="projection-output" class="hidden space-y-10">
+                <div class="widget">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                        <div class="sub-widget">
+                            <h4 class="font-semibold text-gray-600">Proyeksi Pendapatan Tahunan</h4>
+                            <p id="finalRevenue" class="text-3xl md:text-4xl font-bold accent-color mt-2">Rp 0</p>
+                        </div>
+                        <div class="sub-widget">
+                            <h4 class="font-semibold text-gray-600">Proyeksi Profit Tahunan</h4>
+                            <p id="finalProfit" class="text-3xl md:text-4xl font-bold text-green-600 mt-2">Rp 0</p>
+                        </div>
+                        <div class="sub-widget">
+                            <h4 class="font-semibold text-gray-600">Return on Ad Spend (ROAS)</h4>
+                            <p id="finalROAS" class="text-3xl md:text-4xl font-bold accent-color mt-2">0x</p>
+                        </div>
+                    </div>
+                </div>
 
-                ### 3. Perintah Perang (Rekomendasi Taktis)
-                - **Prioritas #1 (URGENT):** Apa satu hal yang harus segera diperbaiki biar gak rugi?
-                - **Prioritas #2 (JANGKA PENDEK):** Apa langkah paling logis untuk naikin PROFIT, bukan cuma omset?
-                - **Vonis Akhir:** Produk ini main di **Red Ocean** (perang harga) atau **Blue Ocean** (niche)?
-
-                Tutup dengan pertanyaan tajam yang bikin foundernya mikir.
-            `;
-
-            try {
-                const genAI = new GoogleGenerativeAI(API_KEY);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const text = response.text();
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="widget">
+                        <h3 class="widget-title">Laporan Laba Rugi (Bulanan)</h3>
+                        <table class="financial-table">
+                            <tbody>
+                                <tr><td class="label">Pendapatan</td><td id="income-revenue" class="value">Rp 0</td></tr>
+                                <tr><td class="label">Harga Pokok Penjualan (HPP)</td><td id="income-cogs" class="value text-red-600">- Rp 0</td></tr>
+                                <tr class="total"><td class="label">Laba Kotor</td><td id="income-gross-profit" class="value">Rp 0</td></tr>
+                                <tr><td class="label pt-4">Biaya Operasional</td><td id="income-opex" class="value text-red-600 pt-4">- Rp 0</td></tr>
+                                <tr class="total"><td class="label">Laba Bersih (Net Profit)</td><td id="income-net-profit" class="value">Rp 0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="widget">
+                        <h3 class="widget-title">Simulasi Arus Kas (Bulanan)</h3>
+                        <table class="financial-table">
+                            <tbody>
+                                <tr><td class="label">Kas Masuk dari Penjualan</td><td id="cashflow-in" class="value text-green-600">+ Rp 0</td></tr>
+                                <tr><td class="label">Kas Keluar untuk Operasional</td><td id="cashflow-out" class="value text-red-600">- Rp 0</td></tr>
+                                <tr class="total"><td class="label">Arus Kas Bersih</td><td id="cashflow-net" class="value">Rp 0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 
-                if (text) {
-                    outputDiv.innerHTML = await marked.parse(text);
-                } else {
-                    outputDiv.innerHTML = `<p class="text-orange-500 font-bold">AI tidak memberikan respons.</p>`;
-                }
-            } catch (err) {
-                console.error("AI Analysis Failed:", err);
-                outputDiv.innerHTML = `<p class="text-red-500 font-bold">Gagal menghubungi AI. Periksa konsol dan API Key Anda.</p><p class="text-xs text-gray-500">${err.message}</p>`;
-            } finally {
-                analyzeButton.disabled = false;
-                analyzeButton.classList.remove("opacity-50", "cursor-not-allowed");
-            }
-        });
-    }
-    runFullSimulation();
-});
+                <div class="widget">
+                     <h3 class="widget-title text-center">Vonis & Rekomendasi Strategis</h3>
+                    <div id="strategicVerdict" class="text-center text-gray-700 bg-gray-100 p-6 rounded-xl">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="action-plan" class="content-section space-y-12">
+            <div class="text-center mb-12">
+                <h2 class="section-title">Rencana Aksi Strategis</h2>
+                <p class="section-subtitle">Rekomendasi taktis yang dihasilkan secara dinamis berdasarkan data dan simulasimu.</p>
+            </div>
+            
+            <div id="action-plan-placeholder" class="widget p-8 text-center">
+                <p class="font-semibold text-gray-700">Lengkapi data di 'Laboratorium Strategi' untuk mendapatkan rencana aksi.</p>
+            </div>
+
+            <div id="action-plan-output" class="hidden widget p-8 md:p-10 space-y-8">
+                <div>
+                    <h3 id="action-platform-title" class="widget-title accent-color"></h3>
+                    <p id="action-platform-desc" class="text-gray-600"></p>
+                </div>
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 id="action-content-title" class="widget-title accent-color"></h3>
+                    <p id="action-content-desc" class="text-gray-600"></p>
+                </div>
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 id="action-monetization-title" class="widget-title accent-color"></h3>
+                    <p id="action-monetization-desc" class="text-gray-600"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="#landscape" class="nav-item active">
+                <span class="nav-emoji">🎯</span>
+                <span class="text-xs">Pasar</span>
+            </a>
+            <a href="#lab" class="nav-item">
+                <span class="nav-emoji">🔬</span>
+                <span class="text-xs">Lab</span>
+            </a>
+            <a href="#ai-analyst" class="nav-item">
+                <span class="nav-emoji">📝</span>
+                <span class="text-xs">AI</span>
+            </a>
+            <a href="#projection" class="nav-item">
+                <span class="nav-emoji">📊</span>
+                <span class="text-xs">Proyeksi</span>
+            </a>
+            <a href="#action-plan" class="nav-item">
+                <span class="nav-emoji">🤟</span>
+                <span class="text-xs">Aksi</span>
+            </a>
+        </div>
+    </nav>
+
+    <footer class="text-center mt-20 py-10 border-t border-gray-200">
+        <p class="text-sm text-gray-500">Laporan ini disusun berdasarkan analisis dan proyeksi dari data publik. Gunakan sebagai alat bantu strategis.</p>
+        <p class="text-xs text-gray-400 mt-2">&copy; 2025 Market Intelligence rizkyfadil.</p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
