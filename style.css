@@ -1,9 +1,3 @@
-/*
-  File: style.css
-  Deskripsi: Kumpulan style untuk dasbor interaktif.
-*/
-
-/* Variabel Warna dan Font Utama */
 :root {
     --primary-blue: #007AFF;
     --bg-light: #f4f4f9;
@@ -15,16 +9,14 @@
     --danger-color: #FF3B30;
 }
 
-/* Style Dasar Body */
 body {
     font-family: "Poppins", sans-serif;
     background-color: var(--bg-light);
     color: #333;
     overflow-x: hidden;
-    padding-bottom: 80px; /* Ruang untuk navigasi bawah */
+    padding-bottom: 80px; 
 }
 
-/* Style untuk Widget/Kartu */
 .widget {
     background-color: var(--card-light);
     border-radius: 1.5rem;
@@ -32,14 +24,11 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     padding: 2rem;
 }
-
 .sub-widget {
     background-color: #f8f8fa;
     border-radius: 1rem;
     padding: 1.5rem;
 }
-
-/* Style untuk Judul Section */
 .section-title {
     font-size: 2.25rem;
     font-weight: 700;
@@ -47,7 +36,6 @@ body {
     text-align: center;
     margin-bottom: 1rem;
 }
-
 .section-subtitle {
     font-size: 1.125rem;
     color: var(--text-secondary-light);
@@ -56,7 +44,6 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-
 .widget-title {
     font-size: 1.25rem;
     font-weight: 600;
@@ -64,7 +51,6 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Kontainer untuk Chart */
 .chart-container {
     position: relative;
     width: 100%;
@@ -81,11 +67,9 @@ body {
     }
 }
 
-/* Warna Aksen */
 .accent-color { color: var(--primary-blue); }
 .accent-bg { background-color: var(--primary-blue); }
 
-/* Style untuk Input Form */
 .calculator-input, .ai-input {
     background-color: #f0f0f5;
     border: 1px solid transparent;
@@ -103,7 +87,6 @@ body {
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
 }
 
-/* Style untuk Slider */
 input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
@@ -132,12 +115,10 @@ input[type="range"]::-webkit-slider-thumb {
     font-weight: 500;
     color: var(--text-secondary-light);
 }
-
 #strategy-output {
     transition: background-color 0.3s ease;
 }
 
-/* Style untuk Navigasi Bawah */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -151,7 +132,6 @@ input[type="range"]::-webkit-slider-thumb {
     border-top: 1px solid var(--border-light);
     z-index: 100;
 }
-
 .bottom-nav-inner {
     display: flex;
     justify-content: space-around;
@@ -159,7 +139,6 @@ input[type="range"]::-webkit-slider-thumb {
     max-width: 600px;
     padding: 8px 0;
 }
-
 .nav-item {
     display: flex;
     flex-direction: column;
@@ -170,42 +149,31 @@ input[type="range"]::-webkit-slider-thumb {
     transition: color 0.2s ease, transform 0.2s ease;
     padding: 4px 12px;
 }
-
 .nav-item:hover {
     color: var(--primary-blue);
     transform: translateY(-2px);
 }
-
 .nav-item.active { 
     color: var(--primary-blue); 
     font-weight: 600;
 }
+.nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
 
-.nav-item svg {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 2px;
-}
-
-/* Style untuk Konten dari AI (Markdown) */
 .prose { max-width: none; }
 .prose h3 { color: #1d1d1f; font-weight: 700; font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
 .prose h4 { color: #333; font-weight: 600; font-size: 1.1rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
 .prose ul { padding-left: 1.25rem; }
 .prose li { margin-bottom: 0.5rem; }
 
-/* Style untuk Tabel Keuangan */
 .financial-table { width: 100%; font-size: 14px; }
 .financial-table td { padding: 8px 4px; }
 .financial-table .label { color: var(--text-secondary-light); }
 .financial-table .value { font-weight: 600; text-align: right; }
 .financial-table .total { border-top: 1px solid var(--border-light); font-weight: 700; }
 
-/* Style untuk Tombol Segmented Control */
 .segmented-control { display: flex; width: 100%; background-color: #e9e9ea; border-radius: 10px; padding: 4px; }
 .segmented-control button { flex: 1; padding: 8px; border: none; background-color: transparent; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: background-color 0.3s, color 0.3s; }
 .segmented-control button.active { background-color: white; color: var(--primary-blue); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-/* Animasi untuk AI Thinking */
 .ai-thinking-step { display: flex; align-items: center; padding: 8px 0; opacity: 0; animation: fadeIn 0.5s ease forwards; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
