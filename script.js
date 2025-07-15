@@ -1,7 +1,7 @@
 import { marked } from "https://esm.sh/marked@^15.0.8";
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 
-const API_KEY = "AIzaSyDkAVtL00WxWCslXTONGyjpvLNUgySHg64";
+const API_KEY = "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";
 
 function formatRupiah(rupiah_string, withPrefix = true) {
     let number_string = String(rupiah_string).replace(/[^\d]/g, '');
