@@ -1,6 +1,6 @@
 # 📊 Dasbor Intelijen E-Commerce Indonesia 2025
 
-## 1. Definisi Proyek
+## 1. What is this project?
 
 ### Apa Itu Proyek Ini?
 Ini lebih dari sekadar dasbor; ini adalah **simulator bisnis** interaktif Anda.
