@@ -1,8 +1,8 @@
 # 📊 Dasbor Intelijen E-Commerce Indonesia 2025
 
-## 1. What is this project?
+## 1. Definisi Proyek
 
-### Apa Itu Proyek Ini?
+### What is this project?
 Ini lebih dari sekadar dasbor; ini adalah **simulator bisnis** interaktif Anda.
 
 Proyek ini adalah sebuah aplikasi web yang dirancang untuk menjadi alat bantu pengambilan keputusan strategis. Tujuannya adalah untuk membantu pemilik usaha, pemasar, dan *brand* yang ingin bertumbuh di pasar e-commerce Indonesia.
