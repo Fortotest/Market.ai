@@ -5,6 +5,8 @@
 ### What is this project?
 Ini lebih dari sekadar dasbor; ini adalah **simulator bisnis** interaktif Anda.
 
+<!-- YOLO test push 🚀 -->
+
 Proyek ini adalah sebuah aplikasi web yang dirancang untuk menjadi alat bantu pengambilan keputusan strategis. Tujuannya adalah untuk membantu pemilik usaha, pemasar, dan *brand* yang ingin bertumbuh di pasar e-commerce Indonesia.
 
 Aplikasi ini membantu Anda menerjemahkan data pasar yang kompleks dan berbagai asumsi bisnis menjadi simulasi untung-rugi, proyeksi keuangan, dan rencana aksi yang lebih jelas.
